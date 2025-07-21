@@ -3,6 +3,12 @@ local Players = game:GetService("Players")
 local Player = Players.LocalPlayer
 local PlayerGui = Player:WaitForChild("PlayerGui")
 
+-- Ensure ScreenGui exists
+local screenGui = PlayerGui:FindFirstChild("GardenGUI") or Instance.new("ScreenGui")
+screenGui.Name = "GardenGUI"
+screenGui.ResetOnSpawn = false
+screenGui.Parent = PlayerGui
+
 -- Create Toggle Button
 local toggleButton = Instance.new("TextButton")
 toggleButton.Name = "ToggleGarden"
@@ -11,7 +17,7 @@ toggleButton.Size = UDim2.new(0, 100, 0, 40)
 toggleButton.Position = UDim2.new(0, 10, 0.5, -20)
 toggleButton.BackgroundColor3 = Color3.fromRGB(40, 170, 40)
 toggleButton.TextColor3 = Color3.new(1, 1, 1)
-toggleButton.Parent = PlayerGui:WaitForChild("ScreenGui") or Instance.new("ScreenGui", PlayerGui)
+toggleButton.Parent = screenGui
 
 -- Create Main Garden Menu
 local gardenFrame = Instance.new("Frame")
@@ -21,7 +27,7 @@ gardenFrame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
 gardenFrame.Visible = false
 gardenFrame.Active = true
 gardenFrame.Draggable = true
-gardenFrame.Parent = PlayerGui.ScreenGui
+gardenFrame.Parent = screenGui
 
 -- Teleport Buttons
 local eggShop = Instance.new("TextButton")
