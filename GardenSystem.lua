@@ -25,47 +25,108 @@ local gardenFrame = Instance.new("Frame")
 gardenFrame.Size = UDim2.new(0, 320, 0, 240)
 gardenFrame.Position = UDim2.new(0.5, -160, 0.5, -120)
 gardenFrame.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
-gardenFrame.BorderSizePixel = 0
-gardenFrame.Visible = false
-gardenFrame.Active = true
-gardenFrame.Draggable = true
-gardenFrame.Parent = screenGui
+-- SpeedHub GUI for Grow a Garden by @yourname
+local Players = game:GetService("Players")
+local Player = Players.LocalPlayer
+local PlayerGui = Player:WaitForChild("PlayerGui")
 
--- UI Corner
-local corner = Instance.new("UICorner")
-corner.CornerRadius = UDim.new(0, 12)
-corner.Parent = gardenFrame
+-- Create ScreenGui
+local screenGui = Instance.new("ScreenGui", PlayerGui)
+screenGui.Name = "SpeedHubGarden"
+screenGui.ResetOnSpawn = false
 
--- Top Teleport Buttons (Egg + Gear)
-local eggShop = Instance.new("TextButton")
-eggShop.Text = "🥚 Egg Shop"
-eggShop.Size = UDim2.new(0, 140, 0, 35)
-eggShop.Position = UDim2.new(0, 10, 0, 10)
-eggShop.BackgroundColor3 = Color3.fromRGB(100, 100, 255)
-eggShop.Font = Enum.Font.Gotham
-eggShop.TextColor3 = Color3.new(1,1,1)
-eggShop.TextSize = 14
-eggShop.Parent = gardenFrame
+-- Main Frame
+local mainFrame = Instance.new("Frame")
+mainFrame.Size = UDim2.new(0, 350, 0, 250)
+mainFrame.Position = UDim2.new(0.5, -175, 0.5, -125)
+mainFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+mainFrame.BorderSizePixel = 0
+mainFrame.Active = true
+mainFrame.Draggable = true
+mainFrame.Parent = screenGui
 
-local gearShop = Instance.new("TextButton")
-gearShop.Text = "🛠️ Gear Shop"
-gearShop.Size = UDim2.new(0, 140, 0, 35)
-gearShop.Position = UDim2.new(0, 170, 0, 10)
-gearShop.BackgroundColor3 = Color3.fromRGB(255, 100, 100)
-gearShop.Font = Enum.Font.Gotham
-gearShop.TextColor3 = Color3.new(1,1,1)
-gearShop.TextSize = 14
-gearShop.Parent = gardenFrame
+-- Title
+local title = Instance.new("TextLabel")
+title.Text = "SpeedHub - Grow a Garden"
+title.Size = UDim2.new(1, 0, 0, 30)
+title.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+title.TextColor3 = Color3.new(1,1,1)
+title.Font = Enum.Font.SourceSansBold
+title.TextSize = 18
+title.Parent = mainFrame
 
--- Toggle Menu Visibility
-toggleButton.MouseButton1Click:Connect(function()
-	gardenFrame.Visible = not gardenFrame.Visible
+-- Top Buttons
+local function createTopButton(text, xOffset, action)
+    local button = Instance.new("TextButton")
+    button.Text = text
+    button.Size = UDim2.new(0, 100, 0, 30)
+    button.Position = UDim2.new(0, xOffset, 0, 40)
+    button.BackgroundColor3 = Color3.fromRGB(90, 90, 90)
+    button.TextColor3 = Color3.new(1,1,1)
+    button.Parent = mainFrame
+    button.MouseButton1Click:Connect(action)
+end
+
+createTopButton("Gear Shop", 10, function()
+    if workspace:FindFirstChild("GearShop") then
+        Player.Character:MoveTo(workspace.GearShop.Position)
+    end
 end)
 
--- Teleport Actions
-eggShop.MouseButton1Click:Connect(function()
-	local egg = workspace:FindFirstChild("EggShop")
-	if egg and Player.Character then
+createTopButton("Egg Shop", 120, function()
+    if workspace:FindFirstChild("EggShop") then
+        Player.Character:MoveTo(workspace.EggShop.Position)
+    end
+end)
+
+-- Auto Features
+local function createToggleFeature(text, yOffset, onToggle)
+    local toggle = Instance.new("TextButton")
+    toggle.Text = text
+    toggle.Size = UDim2.new(0, 320, 0, 30)
+    toggle.Position = UDim2.new(0, 15, 0, yOffset)
+    toggle.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+    toggle.TextColor3 = Color3.new(1,1,1)
+    toggle.Parent = mainFrame
+    local toggled = false
+    toggle.MouseButton1Click:Connect(function()
+        toggled = not toggled
+        toggle.Text = (toggled and "✅ " or "❌ ") .. text
+        onToggle(toggled)
+    end)
+end
+
+createToggleFeature("Auto Plant", 80, function(on)
+    while on and wait(1) do
+        game:GetService("ReplicatedStorage").Plant:FireServer()
+    end
+end)
+
+createToggleFeature("Auto Collect", 120, function(on)
+    while on and wait(0.5) do
+        game:GetService("ReplicatedStorage").Collect:FireServer()
+    end
+end)
+
+createToggleFeature("Auto Buy", 160, function(on)
+    while on and wait(2) do
+        game:GetService("ReplicatedStorage").Buy:FireServer("Seed1") -- Edit as needed
+    end
+end)
+
+-- Scrollable Buy List (Optional if game has many seeds/tools)
+-- You can add this later based on real buttons/items in game
+
+-- Notification
+local notice = Instance.new("TextLabel")
+notice.Text = "SpeedHub Loaded for Grow a Garden"
+notice.Size = UDim2.new(1, 0, 0, 20)
+notice.Position = UDim2.new(0, 0, 1, -20)
+notice.BackgroundTransparency = 1
+notice.TextColor3 = Color3.new(0,1,0)
+notice.TextSize = 14
+notice.Parent = screenGui
+.Character then
 		Player.Character:MoveTo(egg.Position)
 	end
 end)
