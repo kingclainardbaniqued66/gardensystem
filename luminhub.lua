@@ -50,46 +50,58 @@ createTP("Egg Shop", 120, "EggShop")
 
 -- Auto Features
 local y = 80
-local function addToggle(text, callback)
-    local btn = Instance.new("TextButton", mainFrame)
-    btn.Text = "❌ " .. text
-    btn.Size = UDim2.new(0, 320, 0, 30)
-    btn.Position = UDim2.new(0, 15, 0, y)
-    btn.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
-    btn.TextColor3 = Color3.new(1,1,1)
-    btn.Font = Enum.Font.Gotham
-    btn.TextSize = 14
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+local PlayerGui = player:WaitForChild("PlayerGui")
 
-    local enabled = false
-    btn.MouseButton1Click:Connect(function()
-        enabled = not enabled
-        btn.Text = (enabled and "✅ " or "❌ ") .. text
-        callback(enabled)
-    end)
-    y = y + 40
-end
+local screenGui = PlayerGui:FindFirstChild("LuminHubGUI") or Instance.new("ScreenGui", PlayerGui)
+screenGui.Name = "LuminHubGUI"
+screenGui.ResetOnSpawn = false
 
-addToggle("Auto Plant", function(enabled)
-    while enabled do
-        task.wait(1)
-        local plant = ReplicatedStorage:FindFirstChild("Plant")
-        if plant then plant:FireServer() end
+-- Create draggable weight label
+local weightLabel = Instance.new("TextLabel")
+weightLabel.Size = UDim2.new(0, 150, 0, 30)
+weightLabel.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+weightLabel.TextColor3 = Color3.new(1, 1, 1)
+weightLabel.Font = Enum.Font.Gotham
+weightLabel.TextSize = 16
+weightLabel.Visible = false
+weightLabel.Active = true
+weightLabel.Draggable = true
+weightLabel.Parent = screenGui
+
+local mouse = player:GetMouse()
+
+-- Update position only if NOT dragging (simple way)
+local dragging = false
+
+weightLabel.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragging = true
     end
 end)
 
-addToggle("Auto Collect", function(enabled)
-    while enabled do
-        task.wait(0.5)
-        local collect = ReplicatedStorage:FindFirstChild("Collect")
-        if collect then collect:FireServer() end
+weightLabel.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragging = false
     end
 end)
 
-addToggle("Auto Buy", function(enabled)
-    while enabled do
-        task.wait(2)
-        local buy = ReplicatedStorage:FindFirstChild("Buy")
-        if buy then buy:FireServer("Seed1") end
+mouse.Move:Connect(function()
+    local target = mouse.Target
+    if target and target.Name == "Fruit" and target:FindFirstChild("Weight") then
+        weightLabel.Text = "Weight: " .. tostring(math.floor(target.Weight.Value))
+        if not dragging then
+            weightLabel.Position = UDim2.new(0, mouse.X + 20, 0, mouse.Y)
+        end
+        weightLabel.Visible = true
+    else
+        if not dragging then
+            weightLabel.Visible = false
+        end
+    end
+end)
+ver("Seed1") end
     end
 end)
 
